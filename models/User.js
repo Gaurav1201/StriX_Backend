@@ -11,6 +11,7 @@ const UserSchema = new mongoose.Schema(
       default: false,
     },
     shopOwned : {type : "ObjectId", ref : "ShopList"},
+    OTP : {type:Number}
   },
   { timestamps: true }
 );

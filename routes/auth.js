@@ -38,8 +38,10 @@ router.post('/login', async (req, res) => {
     try{
       console.log('login route---', req.body.userName)
       const userName = req.body.userName;
+      console.log(req.body)
       var user1 = "";
       const userdata = await User.findOne().where('username').equals(userName)
+      if(userdata != null){
       console.log(userdata)
       // const user = await User.find({username:userName}, function(err, docs){
       //   if(err){
@@ -67,8 +69,9 @@ router.post('/login', async (req, res) => {
 
 
        // const originalPassword = hashedPassword.toString(CryptoJS.enc.Utf8);
-        const originalPassword = userdata.password;
-        const inputPassword = req.body.password;
+       const originalPassword = userdata.password; 
+      
+         inputPassword = req.body.password;
         
        // originalPassword != inputPassword && 
             //res.json("Wrong Password");
@@ -79,8 +82,12 @@ router.post('/login', async (req, res) => {
         }
         else{
           console.log('pass matched')
-          
-          res.send('user exists')
+          const responceData = {
+            isValid :true,
+            responceText:"User Exists",
+
+          }
+          res.send(responceData);
         }
         // const accessToken = jwt.sign(
         // {
@@ -95,7 +102,12 @@ router.post('/login', async (req, res) => {
         // const { password, ...others } = userdata._doc;  
         // return res.json({...others, accessToken});
 
-    }catch(err){
+      }
+      else {
+        console.log('wejlh')
+        res.send('password does not match');
+      }
+      }catch(err){
       console.log('login err')
       console.log(err)
       res.status(500);

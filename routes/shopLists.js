@@ -6,7 +6,7 @@ const ShopList  = require("../models/ShopList");
 router.get('/shopList', async (req,res)=>{
     console.log('in shop ')
     const shopList = await ShopList.find()
-    console.log(shopList)
+   // console.log(shopList)
     res.send(shopList)
 })
 

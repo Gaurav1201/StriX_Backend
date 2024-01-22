@@ -8,6 +8,8 @@ router.get('/getUser', (req,res)=>{
 })
 //REGISTER
 router.post("/register", async (req, res) => {
+  try{
+    var responseData = {isValid:true, responceText:""};
   console.log('auth ', req.body.password)
   const newUser = new User({
     username: req.body.firstName,
@@ -24,18 +26,25 @@ router.post("/register", async (req, res) => {
     console.log('try bloc')
     const savedUser = await newUser.save();
     console.log(savedUser)
+    responseData['isValid'] = true;
+    responseData['responceText'] = "Saved";
+    responseData['savedUser'] = savedUser;
     return res.send(savedUser)
    // return res.status(201).json(savedUser);
   } catch (err) {
     console.log('error-------',err)
     return res.status(500).json(err);
   }
+}catch(err){
+
+}
 });
 
 //LOGIN
 
 router.post('/login', async (req, res) => {
     try{
+      var responseData = {isValid:true, responceText:""};
       console.log('login route---', req.body.userName)
       const userName = req.body.userName;
       console.log(req.body)
@@ -78,16 +87,15 @@ router.post('/login', async (req, res) => {
         if (originalPassword != inputPassword){
           console.log('user data--', userdata._id,'name--',userdata.username,'password--', userdata.password)
           console.log('wrong pass input pass ',inputPassword, 'original pass ', originalPassword)
-          return res.send('wrong password')
+          responseData['isValid'] = false;
+          responseData['responceText'] = "login sucees";
+          return res.send(responseData);
         }
         else{
           console.log('pass matched')
-          const responceData = {
-            isValid :true,
-            responceText:"User Exists",
-
-          }
-          res.send(responceData);
+          responseData['isValid'] = true;
+          responseData['responceText'] = "login succees";
+          res.send(responseData);
         }
         // const accessToken = jwt.sign(
         // {

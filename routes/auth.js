@@ -9,34 +9,41 @@ router.get('/getUser', (req,res)=>{
 //REGISTER
 router.post("/register", async (req, res) => {
   try{
+
     var responseData = {isValid:true, responceText:""};
-  console.log('auth ', req.body.password)
-  const newUser = new User({
-    username: req.body.firstName,
-    email: req.body.email,
-    phoneNumber : req.body.phoneNumber,
-    password : req.body.password
-    // password: CryptoJS.AES.encrypt(
-    //   req.body.password,
-    //   "sand"
-    // ).toString(),
-  });
+
+    console.log('auth ', req.body.password)
+    const userdata = await User.findOne().where('username').equals(userName)
+    if(userdata!= null){
+      responseData['isValid'] = false;
+      responseData['responceText'] = "Email Already Exists";
+      return res.send(responseData)
+    }
+    const newUser = new User({
+      username: req.body.firstName,
+      email: req.body.email,
+      phoneNumber : req.body.phoneNumber,
+      password : req.body.password
+    });
 
   try {
-    console.log('try bloc')
+    console.log('try block')
     const savedUser = await newUser.save();
     console.log(savedUser)
     responseData['isValid'] = true;
     responseData['responceText'] = "Saved";
     responseData['savedUser'] = savedUser;
-    return res.send(savedUser)
+    return res.send(responseData)
    // return res.status(201).json(savedUser);
   } catch (err) {
     console.log('error-------',err)
-    return res.status(500).json(err);
+    responseData['isValid'] = false;
+    responseData['responceText'] = err;
+    return res.status(500).json(responseData);
   }
 }catch(err){
-
+  responseData['isValid'] = false;
+    responseData['responceText'] = "Error";
 }
 });
 
@@ -52,73 +59,39 @@ router.post('/login', async (req, res) => {
       const userdata = await User.findOne().where('username').equals(userName)
       if(userdata != null){
       console.log(userdata)
-      // const user = await User.find({username:userName}, function(err, docs){
-      //   if(err){
-      //     console.log( 'errorln,n,,',err)
-      //   }
-      //   else{
-      //     console.log('docdjldk',docs);
-      //     user1 = docs;
-      //   }
-      // } ) 
-      //const user = await User.find().where('username').equals(req.body.userName)
-      // const user = await User.findOne(
-      //       {
-      //           username: req.body.userName
-      //       }
-      //   )
-        //c onst user = await User.find().where('username').equals('test3')
-        //!user && re s.status(401).json("Wrong User Name");
-
-        // const hashedPassword = CryptoJS.AES.decrypt(
-        //     user.password,
-        //     "sand"
-        //    // process.env.PASS_SEC
-        // );
-
-
-       // const originalPassword = hashedPassword.toString(CryptoJS.enc.Utf8);
        const originalPassword = userdata.password; 
       
          inputPassword = req.body.password;
-        
-       // originalPassword != inputPassword && 
-            //res.json("Wrong Password");
+        // check login password and saved password
         if (originalPassword != inputPassword){
           console.log('user data--', userdata._id,'name--',userdata.username,'password--', userdata.password)
           console.log('wrong pass input pass ',inputPassword, 'original pass ', originalPassword)
           responseData['isValid'] = false;
-          responseData['responceText'] = "login sucees";
+          responseData['responceText'] = "Email/Password Combo Doesn't Match";
           return res.send(responseData);
         }
         else{
           console.log('pass matched')
           responseData['isValid'] = true;
-          responseData['responceText'] = "login succees";
+          responseData['responceText'] = "Login succees";
+
+          // TODO: GENERATE JWT TOKEN 
           res.send(responseData);
         }
-        // const accessToken = jwt.sign(
-        // {
-        //     id: userdata._id,
-        //     isAdmin: userdata.isAdmin,
-        // },
-        // //,
-        // "sand",
-        //     {expiresIn:"3d"}
-        // );
-  
-        // const { password, ...others } = userdata._doc;  
-        // return res.json({...others, accessToken});
-
+       
       }
       else {
         console.log('wejlh')
-        res.send('password does not match');
+        responseData['isValid'] = false;
+        responseData['responceText'] = "Email/Password Comination Doesn't Match";
+        res.send(responseData);
       }
       }catch(err){
+        responseData['isValid'] = false;
+        responseData['responceText'] = err;
       console.log('login err')
       console.log(err)
-      res.status(500);
+      res.status(500).json(responseData);
     }
 
 }); 
